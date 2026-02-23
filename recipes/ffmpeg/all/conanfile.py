@@ -86,6 +86,7 @@ class FFMpegConan(ConanFile):
         "with_jni": [True, False],
         "with_mediacodec": [True, False],
         "with_xlib": [True, False],
+        "with_cuda": [True, False],
         "disable_everything": [True, False],
         "disable_all_encoders": [True, False],
         "disable_encoders": [None, "ANY"],
@@ -178,6 +179,7 @@ class FFMpegConan(ConanFile):
         "with_jni": False,
         "with_mediacodec": False,
         "with_xlib": True,
+        "with_cuda": False,
         "disable_everything": False,
         "disable_all_encoders": False,
         "disable_encoders": None,
@@ -396,6 +398,12 @@ class FFMpegConan(ConanFile):
             self.requires("whisper-cpp/1.7.6")
         if self.options.get_safe("with_openapv"):
             self.requires("openapv/0.2.0.4")
+        if self.options.with_cuda:
+            if Version(self.version).major == 4:
+                nv_codec_version = "[>=11 <12]"
+            else:
+                nv_codec_version = "[>=13 <14]"
+            self.requires(f"nv-codec-headers/{nv_codec_version}", headers=True, visible=False)
 
     def validate(self):
         if self.options.with_ssl == "securetransport" and not is_apple_os(self):
@@ -595,11 +603,18 @@ class FFMpegConan(ConanFile):
             opt_enable_disable("jni", self.options.get_safe("with_jni")),
             opt_enable_disable("mediacodec", self.options.get_safe("with_mediacodec")),
             opt_enable_disable("xlib", self.options.get_safe("with_xlib")),
-            "--disable-cuda",  # FIXME: CUDA support
-            "--disable-cuvid",  # FIXME: CUVID support
+
+            opt_enable_disable("cuda" if Version(self.version).major == 4 else "cuda-nvcc", self.options.with_cuda),
+            opt_enable_disable("nvdec", self.options.with_cuda),
+            opt_enable_disable("nvenc", self.options.with_cuda),
+            opt_enable_disable("cuvid", self.options.with_cuda),
+            # opt_enable_disable("libnpp", self.options.with_cuda), recent CUDA distributions do not have libnpp anymore
+
             # Licenses
             opt_enable_disable("nonfree", self.options.get_safe("with_libfdk_aac") or (self.options.with_ssl and (
-                self.options.with_libx264 or self.options.with_libx265 or self.options.get_safe("postproc")))),
+                self.options.with_libx264 or self.options.with_libx265 or self.options.get_safe("postproc")))
+                or self.options.with_cuda
+            ),
             opt_enable_disable("gpl", self.options.with_libx264 or self.options.with_libx265 or self.options.get_safe("postproc"))
         ]
 
