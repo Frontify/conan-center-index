@@ -178,6 +178,8 @@ class LibvipsConan(ConanFile):
             self.requires("libwebp/[>=1.3.2 <2]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
+        if self.options.with_rsvg:
+            self.requires("librsvg/2.58.5@frontify/stable", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.options.vapi and not self.options.introspection:
@@ -210,8 +212,7 @@ class LibvipsConan(ConanFile):
             raise ConanInvalidConfiguration("orc recipe not available in conancenter yet")
         if self.options.with_quantizr:
             raise ConanInvalidConfiguration("quantizr recipe not available in conancenter yet")
-        if self.options.with_rsvg:
-            raise ConanInvalidConfiguration("librsvg recipe not available in conancenter yet")
+
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -382,6 +383,8 @@ class LibvipsConan(ConanFile):
             self.cpp_info.components["vips"].requires.append("libwebp::libwebp")
         if self.options.with_zlib:
             self.cpp_info.components["vips"].requires.append("zlib::zlib")
+        if self.options.with_rsvg:
+            self.cpp_info.components["vips"].requires.append("librsvg::librsvg")
 
         if self.options.cpp:
             self.cpp_info.components["vips-cpp"].set_property("pkg_config_name", "vips-cpp")
