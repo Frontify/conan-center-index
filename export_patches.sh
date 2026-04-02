@@ -13,6 +13,9 @@ then
     fi
 fi
 
+conan export "${root_dir}/recipes/libx265/all" --version 3.6
+conan export "${root_dir}/recipes/libx265/all" --version 4.1
+
 user="frontify"
 channel="stable"
 

@@ -1,0 +1,26 @@
+From 48adf1bc3ee91e1ffd3019e2e2424f96448f6cda Mon Sep 17 00:00:00 2001
+From: Nicolas Koller <48681214+kolibri91@users.noreply.github.com>
+Date: Thu, 2 Apr 2026 09:22:09 +0200
+Subject: [PATCH] fix: uninitialized dts variables
+
+---
+ source/encoder/encoder.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/source/encoder/encoder.cpp b/source/encoder/encoder.cpp
+index 2e65cb1a9..7aa4de72a 100644
+--- a/source/encoder/encoder.cpp
++++ b/source/encoder/encoder.cpp
+@@ -127,6 +127,9 @@ Encoder::Encoder()
+     m_encodedFrameNum = 0;
+     m_pocLast = -1;
+     m_curEncoder = 0;
++    m_firstPts = 0;
++    m_bframeDelayTime = 0;
++    m_prevReorderedPts[0] = m_prevReorderedPts[1] = 0;
+     m_numLumaWPFrames = 0;
+     m_numChromaWPFrames = 0;
+     m_numLumaWPBiFrames = 0;
+-- 
+2.43.0
+
